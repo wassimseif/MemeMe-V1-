@@ -11,11 +11,13 @@ import UIKit
 class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavigationControllerDelegate, UITextFieldDelegate {
     
     @IBOutlet weak var toolBar: UIToolbar!
-    
     @IBOutlet weak var navigationBar: UIToolbar!
     @IBOutlet weak var upperTextField: UITextField!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var lowerTextField: UITextField!
+    
+    
+    
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         self.subscribeToKeyboardNotifications()
@@ -36,6 +38,21 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
         self.unsubscribeToKeyboardNotifications()
     }
     
+    
+    
+    
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {
+        
+        
+        imageView.image = image
+        
+        self.dismissViewControllerAnimated(true, completion: nil)
+        
+    }
+    override func prefersStatusBarHidden() -> Bool {
+        return true
+    }
+
     @IBAction func takeAPhoto(){
         
         if !UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera){
@@ -64,8 +81,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
         }
     }
     
-    //MARK:- Keybaord Functions
     
+    
+    
+    //MARK:- Keybaord Functions
+    /**
+    This function will set all the needed attributes for the textField in this app
+    
+    - parameter textField: The textfield that this function will operate on
+    */
     func setTextField(textField : UITextField){
         textField.delegate = self
         textField.defaultTextAttributes = Meme.memeTextAttributes
@@ -73,58 +97,76 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
         textField.borderStyle = UITextBorderStyle.None
         textField.backgroundColor = UIColor.clearColor()
     }
+    /**
+     Subscribes on NSNotication and listens on the keyboardWillShow notification
+     */
     func subscribeToKeyboardNotifications() {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "KeyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
     }
+    /**
+     Subscribes on NSNotication and listens on the keyboardWillHide notification
+
+     */
     func unsubscribeToKeyboardNotifications(){
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
-    
-    
+    /**
+     This function will do the necessary view changed when the keybaord will appear
+     
+     - parameter notification: the notification that informs that the keyboard will show
+     */
     func keyboardWillShow(notification: NSNotification) {
         if lowerTextField.isFirstResponder(){
             self.view.frame.origin.y -= getKeyboardHeight(notification)
         }
     }
+    /**
+     This function will do the necessary view changed when the keybaord will hide
+
+     
+     - parameter notification: the notification that informs that the keyboard will show
+     */
     func KeyboardWillHide (notification : NSNotification){
         
         self.view.frame.origin.y = 0
     }
-    
-    
-    
+    /**
+     This function will return the keyboard height
+     
+     - parameter notification: the notification that informs that the keyboard will show
+
+     - returns: The keyboard height
+     */
     func getKeyboardHeight(notification: NSNotification) -> CGFloat {
         let userInfo = notification.userInfo!
         let keyboardSize = userInfo[UIKeyboardFrameEndUserInfoKey] as! NSValue // of CGRect
-        print(keyboardSize.CGRectValue().height)
         return keyboardSize.CGRectValue().height
     }
     
-    
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {
-        
-        
-        imageView.image = image
-        
-        self.dismissViewControllerAnimated(true, completion: nil)
-        
-    }
-    override func prefersStatusBarHidden() -> Bool {
-        return true
-    }
     
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
-    
     func textFieldDidBeginEditing(textField: UITextField) {
         
         
         
     }
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        var newText: NSString = textField.text!
+        newText = newText.stringByReplacingCharactersInRange(range, withString: string.uppercaseString)
+        textField.text = String(newText)
+        return false
+    }
     
+    
+    /**
+     Triggers the activity view that will share a meme
+     
+     - parameter sender: The AnyObject that triggered this function
+     */
     @IBAction func shareMeme(sender: AnyObject) {
         let memedImage = generateMemedImage()
         let activityViewController = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
@@ -138,7 +180,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
         presentViewController(activityViewController, animated: true, completion: nil)
     }
     
-    
+    /**
+     This function will generate a meme by combining the image with the 2 UITextFields
+     
+     - returns: The generated images
+     */
     func generateMemedImage() -> UIImage {
         
         // Hide toolbar and navbar
@@ -161,12 +207,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
         
     }
     
-    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        var newText: NSString = textField.text!
-        newText = newText.stringByReplacingCharactersInRange(range, withString: string.uppercaseString)
-        textField.text = String(newText)
-        return false
-    }
+   
     
 }
 
