@@ -8,41 +8,21 @@
 
 import Foundation
 import UIKit
-public class Meme {
+struct Meme {
     
     
-    public static let  memeTextAttributes = [
-        NSForegroundColorAttributeName : UIColor.whiteColor(),
-        NSStrokeColorAttributeName : UIColor.blackColor(),
-        NSFontAttributeName : UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
-        NSStrokeWidthAttributeName : -3.0
-    ]
-    
-    private var upperText : String
-    private var lowerText : String
-    private var originalImage : UIImage
-    private var memedImage : UIImage
-    
-    func getUpperText() ->String{
-        return self.upperText
-    }
-    func getLowerText() ->String{
-        return self.lowerText
-    }
-    
-    func getOriginalImage() ->UIImage {
-        return self.originalImage
-    }
-    func getMemedImage() -> UIImage {
-        return self.memedImage
-    }
-    
-    init(upperText: String, lowerText: String , originalImage  : UIImage, memedImage : UIImage){
+     var upperText : String
+     var lowerText : String
+     var originalImage : UIImage
+     var memedImage : UIImage
+    init(upperText : String, lowerText:String, originalImage : UIImage, memedImage: UIImage){
         self.upperText = upperText
         self.lowerText = lowerText
-        self.originalImage  = originalImage
+        self.originalImage = originalImage
         self.memedImage = memedImage
     }
+    
+
     
 
     

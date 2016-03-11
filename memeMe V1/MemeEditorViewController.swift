@@ -8,19 +8,26 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavigationControllerDelegate, UITextFieldDelegate {
+class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegate , UINavigationControllerDelegate, UITextFieldDelegate {
     
     @IBOutlet weak var toolBar: UIToolbar!
     @IBOutlet weak var navigationBar: UIToolbar!
     @IBOutlet weak var upperTextField: UITextField!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var lowerTextField: UITextField!
+    @IBOutlet weak var cameraButtonOutlet: UIBarButtonItem!
     
-    
-    
+    // for saving memes
+    var memes = [Meme]()
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        self.subscribeToKeyboardNotifications()
+        subscribeToKeyboardNotifications()
+        if !UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera){
+            cameraButtonOutlet.enabled = false
+            
+            return
+            
+        }
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,49 +42,66 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
     }
     override func viewWillDisappear(animated: Bool) {
         super.viewWillAppear(animated)
-        self.unsubscribeToKeyboardNotifications()
+        unsubscribeToKeyboardNotifications()
     }
     
-    
+    let  memeTextAttributes = [
+        NSForegroundColorAttributeName : UIColor.whiteColor(),
+        NSStrokeColorAttributeName : UIColor.blackColor(),
+        NSFontAttributeName : UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
+        NSStrokeWidthAttributeName : -3.0
+    ]
     
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {
         
-        
+        imageView.contentMode = UIViewContentMode.ScaleAspectFit
         imageView.image = image
         
-        self.dismissViewControllerAnimated(true, completion: nil)
+        dismissViewControllerAnimated(true, completion: nil)
         
     }
     override func prefersStatusBarHidden() -> Bool {
         return true
     }
-
+    
     @IBAction func takeAPhoto(){
         
-        if !UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera){
-            print("Camera not  Available")
-            showImagePicker()
-            return
-            
-        }
         
-        let controller = UIImagePickerController()
-        controller.sourceType = UIImagePickerControllerSourceType.Camera
-        controller.delegate = self
-        self.presentViewController(controller, animated: true) { () -> Void in
-            print("Camera Controller Viewed")
-        }
+        initializeAnImagePicker(UIImagePickerControllerSourceType.Camera)
+        
         
     }
     @IBAction func showImagePicker (){
-        let controller = UIImagePickerController()
         
-        //The Default is PhotoLibrary. Not Necessary step
-        controller.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+        initializeAnImagePicker(UIImagePickerControllerSourceType.PhotoLibrary)
+        
+    }
+    
+    func initializeAnImagePicker( source : UIImagePickerControllerSourceType){
+        let controller = UIImagePickerController()
         controller.delegate = self
-        self.presentViewController(controller, animated: true) { () -> Void in
-            print("Image controller viewed")
+        
+        
+        switch (source) {
+            
+        case UIImagePickerControllerSourceType.Camera :
+            controller.sourceType = UIImagePickerControllerSourceType.Camera
+            presentViewController(controller, animated: true) { () -> Void in
+                print("Camera Controller Viewed")
+            }
+            break
+            
+        case UIImagePickerControllerSourceType.PhotoLibrary :
+            controller.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+            presentViewController(controller, animated: true) { () -> Void in
+                print("Image controller viewed")
+            }
+            break
+            
+        default:
+            print("Should never be executed")
+            
         }
     }
     
@@ -92,7 +116,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
     */
     func setTextField(textField : UITextField){
         textField.delegate = self
-        textField.defaultTextAttributes = Meme.memeTextAttributes
+        textField.defaultTextAttributes = memeTextAttributes
         textField.textAlignment = NSTextAlignment.Center;
         textField.borderStyle = UITextBorderStyle.None
         textField.backgroundColor = UIColor.clearColor()
@@ -106,7 +130,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
     }
     /**
      Subscribes on NSNotication and listens on the keyboardWillHide notification
-
+     
      */
     func unsubscribeToKeyboardNotifications(){
         NSNotificationCenter.defaultCenter().removeObserver(self)
@@ -118,24 +142,24 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
      */
     func keyboardWillShow(notification: NSNotification) {
         if lowerTextField.isFirstResponder(){
-            self.view.frame.origin.y -= getKeyboardHeight(notification)
+            view.frame.origin.y -= getKeyboardHeight(notification)
         }
     }
     /**
      This function will do the necessary view changed when the keybaord will hide
-
+     
      
      - parameter notification: the notification that informs that the keyboard will show
      */
     func KeyboardWillHide (notification : NSNotification){
         
-        self.view.frame.origin.y = 0
+        view.frame.origin.y = 0
     }
     /**
      This function will return the keyboard height
      
      - parameter notification: the notification that informs that the keyboard will show
-
+     
      - returns: The keyboard height
      */
     func getKeyboardHeight(notification: NSNotification) -> CGFloat {
@@ -180,10 +204,14 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
         activityViewController.completionWithItemsHandler = {
             (activity, success, items, error) in
             if (success) {
+                
                 self.dismissViewControllerAnimated(true, completion: nil)
             }
         }
-        presentViewController(activityViewController, animated: true, completion: nil)
+        presentViewController(activityViewController, animated: true) { () -> Void in
+            
+            self.saveMeme()
+        }
     }
     
     /**
@@ -213,7 +241,23 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
         
     }
     
-   
+    func setupAMeme() -> Meme{
+        
+        
+        let meme = Meme(upperText: upperTextField.text!, lowerText: lowerTextField.text!, originalImage: imageView.image!, memedImage: generateMemedImage())
+        
+        
+        return meme
+    }
+    
+    func saveMeme(){
+       
+            //Create the meme
+            var meme = setupAMeme()
+            memes.append(meme)
+            print("Meme saved")
+        
+    }
     
 }
 

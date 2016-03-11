@@ -6,10 +6,10 @@
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Meme Editor View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="memeMe_V1" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="MemeEditorViewController" customModule="memeMe_V1" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -106,6 +106,7 @@
                         </variation>
                     </view>
                     <connections>
+                        <outlet property="cameraButtonOutlet" destination="2TD-G0-wvL" id="LqS-xJ-HkP"/>
                         <outlet property="imageView" destination="rZY-Dz-x9z" id="BPg-k4-YTa"/>
                         <outlet property="lowerTextField" destination="dAF-Ma-UU3" id="nKe-ZZ-cVF"/>
                         <outlet property="navigationBar" destination="88x-Sm-6Q8" id="W63-Sq-6mw"/>
