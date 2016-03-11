@@ -150,8 +150,14 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate , UINavi
         return true
     }
     func textFieldDidBeginEditing(textField: UITextField) {
-        
-        
+        if textField == lowerTextField && textField.text == "Bottom" {
+            textField.text = ""
+            return
+        }
+        if textField == upperTextField && textField.text == "Top"{
+            textField.text = ""
+            return
+        }
         
     }
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
